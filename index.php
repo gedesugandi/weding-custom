@@ -4,7 +4,7 @@
  * Plugin Name: CSWD For Wedingpress
  * Description: Plugin Custom untuk generator link, guest book dan popup cover
  * Plugin URI: 
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Gede Sugandi
  * Author URI: https://bedahdigital.com/author/gedesugandi
  * Text Domain: WEDKU-elementor-additional-widget
