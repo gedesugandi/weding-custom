@@ -19,15 +19,16 @@
  */
 
 // EDIT: Make this unique. Example: YourDevName\YourPluginName;
-namespace CodePotent\UpdateManager;
+namespace sugandi\cswd;
 
 // EDIT: URL where Update Manager is installed; with trailing slash!
-const UPDATE_SERVER = 'http://localhost/my/wordpress';
+const UPDATE_SERVER = 'https://wp.bedahdigital.com/';
 
 // EDIT: Comment this out and fill with the first part of the url
 //       of your Download link to make sure that updates
 //       are served from your trusted source.
 // const SECURE_SOURCE = 'https://github.com/xxsimoxx/codepotent-update-manager/';
+const SECURE_SOURCE = 'https://github.com/gedesugandi/weding-custom/';
 
 // EDIT: plugin or theme?
 const UPDATE_TYPE = 'plugin';
@@ -48,7 +49,8 @@ if (!defined('ABSPATH')) {
  *
  * @author John Alarcon
  */
-class UpdateClient {
+class UpdateClient
+{
 
 	// Instance of the object.
 	private static $instance = null;
@@ -78,7 +80,8 @@ class UpdateClient {
 	 *
 	 * @since 1.0.0
 	 */
-	private function __construct() {
+	private function __construct()
+	{
 
 		// Configure the update object.
 		$this->config = [
@@ -99,7 +102,6 @@ class UpdateClient {
 
 		// Hook the update client into the system.
 		$this->init();
-
 	}
 
 	/**
@@ -114,7 +116,8 @@ class UpdateClient {
 	 *
 	 * @return object Current instance of the object.
 	 */
-	public static function get_instance() {
+	public static function get_instance()
+	{
 
 		// Check for existing instance or get a new one.
 		if (self::$instance === null) {
@@ -123,7 +126,6 @@ class UpdateClient {
 
 		// Return the object.
 		return self::$instance;
-
 	}
 
 	/**
@@ -135,23 +137,23 @@ class UpdateClient {
 	 *
 	 * @since 1.0.0
 	 */
-	private function init() {
+	private function init()
+	{
 
 		// Print footer scripts; see comments on the method.
 		add_action('admin_print_footer_scripts', [$this, 'print_admin_scripts']);
 
 		// Filter the admin row links.
-		add_filter($this->config['type'].'_row_meta', [$this, 'filter_component_row_meta'], 10, 2);
+		add_filter($this->config['type'] . '_row_meta', [$this, 'filter_component_row_meta'], 10, 2);
 
 		// Filter update data into the transient before saving.
-		add_filter('pre_set_site_transient_update_'.$this->config['type'].'s', [$this, 'filter_component_update_transient']);
+		add_filter('pre_set_site_transient_update_' . $this->config['type'] . 's', [$this, 'filter_component_update_transient']);
 
 		// Filter install API results.
-		add_filter($this->config['type'].'s_api_result', [$this, 'filter_components_api_result'], 10, 3);
+		add_filter($this->config['type'] . 's_api_result', [$this, 'filter_components_api_result'], 10, 3);
 
 		// Filter after-install process.
 		add_filter('upgrader_post_install', [$this, 'filter_upgrader_post_install'], 11, 3);
-
 	}
 
 	/**
@@ -172,7 +174,8 @@ class UpdateClient {
 	 *
 	 * @since 1.0.0
 	 */
-	public function print_admin_scripts() {
+	public function print_admin_scripts()
+	{
 
 		// Grab the current screen.
 		$screen = get_current_screen();
@@ -184,31 +187,30 @@ class UpdateClient {
 			$text2 = esc_html__('Reviews');
 			$text3 = esc_html__('Read all reviews');
 			// Swap "Compatible up to: 4.9.99" with "Compatible up to: 1.1.1".
-			echo '<script>jQuery(document).ready(function($){$("ul li:contains(4.9.99)").html("<strong>'.$text1.'</strong> '.$this->cp_latest_version.'");$(".fyi h3:contains('.$text2.')").hide();$(".fyi p:contains('.$text3.')").hide();});</script>'."\n";
+			echo '<script>jQuery(document).ready(function($){$("ul li:contains(4.9.99)").html("<strong>' . $text1 . '</strong> ' . $this->cp_latest_version . '");$(".fyi h3:contains(' . $text2 . ')").hide();$(".fyi p:contains(' . $text3 . ')").hide();});</script>' . "\n";
 			// Styles for the modal window.
-			echo '<style>'."\n";
+			echo '<style>' . "\n";
 			// Hide the ratings text and links to WP.org reviews.
-			echo '.fyi .counter-container {display:none;}'."\n";
+			echo '.fyi .counter-container {display:none;}' . "\n";
 			// Testing note, when shown.
-			echo '.plugin_testing_notice > p {margin:0 0 10px;padding:25px;border:1px solid #f00;}'."\n";
+			echo '.plugin_testing_notice > p {margin:0 0 10px;padding:25px;border:1px solid #f00;}' . "\n";
 			// Ensure wider images do not break the layout.
-			echo '#plugin-information-content img{max-width:100%;}'."\n";
+			echo '#plugin-information-content img{max-width:100%;}' . "\n";
 			// Modal window header image.
-			echo '#plugin-information-title.with-banner{background-size:100% 100%;background-repeat:no-repeat;background-position-x:center;background-position-y:center;background-color:#333;}'."\n";
+			echo '#plugin-information-title.with-banner{background-size:100% 100%;background-repeat:no-repeat;background-position-x:center;background-position-y:center;background-color:#333;}' . "\n";
 			// Add space above stars.
-			echo '#plugin-information #section-holder #section-reviews .star-rating {margin:15px 0 0 0;}'."\n";
+			echo '#plugin-information #section-holder #section-reviews .star-rating {margin:15px 0 0 0;}' . "\n";
 			// Add divider below review text.
-			echo '#section-reviews p{margin:0;padding-bottom:25px;border-bottom:1px solid #f2f2f2;}'."\n";
+			echo '#section-reviews p{margin:0;padding-bottom:25px;border-bottom:1px solid #f2f2f2;}' . "\n";
 			// Lighten paragraph text for screenshot captions.
-			echo '#section-screenshots div{margin:0 0 50px;color:#777;}'."\n";
+			echo '#section-screenshots div{margin:0 0 50px;color:#777;}' . "\n";
 			// Empasize bold text in screenshot captions.
-			echo '#section-screenshots div strong{color:#494949;}'."\n";
+			echo '#section-screenshots div strong{color:#494949;}' . "\n";
 			// Add border to screenshots.
-			echo '#section-screenshots img{padding:3px;border:1px solid #ccc;}'."\n";
+			echo '#section-screenshots img{padding:3px;border:1px solid #ccc;}' . "\n";
 			// And close up.
-			echo '</style>'."\n";
+			echo '</style>' . "\n";
 		}
-
 	}
 
 	/**
@@ -221,19 +223,20 @@ class UpdateClient {
 	 * @param object $value
 	 * @return object $value
 	 */
-	public function filter_component_update_transient($value) {
+	public function filter_component_update_transient($value)
+	{
 
 		// Is there a response?
 		if (isset($value->response)) {
 
 			// Get the installed components.
-			$components = $this->get_component_data('query_'.$this->config['type'].'s');
+			$components = $this->get_component_data('query_' . $this->config['type'] . 's');
 
 			// Iterate over installed components.
-			foreach($components as $component=>$data) {
+			foreach ($components as $component => $data) {
 
 				// If necessary check if the new package come from the right source.
-				if (defined(__NAMESPACE__.'\SECURE_SOURCE') && isset($data['package']) && strpos($data['package'], SECURE_SOURCE) !== 0) {
+				if (defined(__NAMESPACE__ . '\SECURE_SOURCE') && isset($data['package']) && strpos($data['package'], SECURE_SOURCE) !== 0) {
 					unset($value->response[$component]);
 					continue;
 				}
@@ -257,19 +260,15 @@ class UpdateClient {
 						}
 						// Cast as object.
 						$value->response[$component] = (object)$data;
-
 					} else if ($this->config['type'] === 'theme') {
 
 						// Cast as array.
 						$value->response[$component] = (array)$data;
-
 					}
-
 				} else {
 
 					// If no new version, no update. Unset the entry.
 					unset($value->response[$component]);
-
 				} // if/else
 
 			} // foreach $components
@@ -278,7 +277,6 @@ class UpdateClient {
 
 		// Return the updated transient value.
 		return $value;
-
 	}
 
 	/**
@@ -293,7 +291,8 @@ class UpdateClient {
 	 * @param object $value
 	 * @return object $value
 	 */
-	public function filter_plugin_update_transient($value) {
+	public function filter_plugin_update_transient($value)
+	{
 		return $this->filter_component_update_transient($value);
 	}
 
@@ -309,10 +308,11 @@ class UpdateClient {
 	 * @param object $args
 	 * @return object $res
 	 */
-	public function filter_components_api_result($res, $action, $args) {
+	public function filter_components_api_result($res, $action, $args)
+	{
 
 		// If needed args are missing, just return the result.
-		if (empty($args->slug) || $action !== $this->config['type'].'_information') {
+		if (empty($args->slug) || $action !== $this->config['type'] . '_information') {
 			return $res;
 		}
 
@@ -341,7 +341,6 @@ class UpdateClient {
 
 		// Return response.
 		return $res;
-
 	}
 
 	/**
@@ -358,7 +357,8 @@ class UpdateClient {
 	 * @param object $args
 	 * @return object $res
 	 */
-	public function filter_plugins_api_result($res, $action, $args) {
+	public function filter_plugins_api_result($res, $action, $args)
+	{
 		return $this->filter_components_api_result($res, $action, $args);
 	}
 
@@ -375,20 +375,20 @@ class UpdateClient {
 	 * @param string $component_file Ex: plugin-folder/plugin-file.php
 	 * @return array $component_meta with an added link.
 	 */
-	public function filter_component_row_meta($component_meta, $component_file) {
+	public function filter_component_row_meta($component_meta, $component_file)
+	{
 
 		// Add the link to the plugin's or theme's row, if not already existing.
 		if ($this->identifier === $component_file) {
 			$anchors_string = implode('', $component_meta);
 			$anchor_text = esc_html__('View details');
-			if (!preg_match('|(\<a[ \s\S\d]*)('.$anchor_text.')(<\/a>)|', $anchors_string)) {
-				$component_meta[] = '<a class="thickbox open-plugin-details-modal" href="'.admin_url('/'.$this->config['type'].'-install.php?tab='.$this->config['type'].'-information&'.$this->config['type'].'='.$this->server_slug.'&TB_iframe=true&width=600&height=550').'">'.$anchor_text.'</a>';
+			if (!preg_match('|(\<a[ \s\S\d]*)(' . $anchor_text . ')(<\/a>)|', $anchors_string)) {
+				$component_meta[] = '<a class="thickbox open-plugin-details-modal" href="' . admin_url('/' . $this->config['type'] . '-install.php?tab=' . $this->config['type'] . '-information&' . $this->config['type'] . '=' . $this->server_slug . '&TB_iframe=true&width=600&height=550') . '">' . $anchor_text . '</a>';
 			}
 		}
 
 		// Return the maybe amended links.
 		return $component_meta;
-
 	}
 
 	/**
@@ -406,7 +406,8 @@ class UpdateClient {
 	 * @param string $plugin_file Ex: plugin-folder/plugin-file.php
 	 * @return array $plugin_meta with an added link.
 	 */
-	public function filter_plugin_row_meta($plugin_meta, $plugin_file) {
+	public function filter_plugin_row_meta($plugin_meta, $plugin_file)
+	{
 		return $this->filter_component_row_meta($plugin_meta, $plugin_file);
 	}
 
@@ -422,7 +423,8 @@ class UpdateClient {
 	 * @param array $result
 	 * @return object
 	 */
-	public function filter_upgrader_post_install($response, $hook_extra, $result) {
+	public function filter_upgrader_post_install($response, $hook_extra, $result)
+	{
 
 		// Not dealing with an install? Bail.
 		if (!isset($hook_extra[$this->config['type']])) {
@@ -433,7 +435,7 @@ class UpdateClient {
 		global $wp_filesystem, $hook_suffix;
 
 		// Destination for new component.
-		$destination = trailingslashit($result['local_destination']).dirname($hook_extra[$this->config['type']]);
+		$destination = trailingslashit($result['local_destination']) . dirname($hook_extra[$this->config['type']]);
 
 		// Move the component to the correct location.
 		$wp_filesystem->move($result['destination'], $destination);
@@ -449,7 +451,7 @@ class UpdateClient {
 			// Got both of the needed arguments?
 			if (isset($_GET['action'], $_GET[$this->config['type']])) {
 				// First argument is good?
-				if ($_GET['action'] === 'upgrade-'.$this->config['type']) {
+				if ($_GET['action'] === 'upgrade-' . $this->config['type']) {
 					// Next argument is good?
 					if ($_GET[$this->config['type']] === $hook_extra[$this->config['type']]) {
 						// Activate the component.
@@ -462,7 +464,6 @@ class UpdateClient {
 
 		// Return the response unaltered.
 		return $response;
-
 	}
 
 	/**
@@ -481,24 +482,24 @@ class UpdateClient {
 	 * @return string Component identifier; ie, plugin-folder/plugin-file.php or
 	 * 										ie, some-theme-directory
 	 */
-	private function get_identifier() {
+	private function get_identifier()
+	{
 
 		$identifier = '';
 
 		if (UPDATE_TYPE === 'theme') {
 
 			$path_parts = explode('/', str_replace('\\', '/', __FILE__));
-			foreach ($path_parts as $n=>$part) {
+			foreach ($path_parts as $n => $part) {
 				if ($part === 'themes') {
-					$this->identifier = $identifier = $path_parts[$n+1];
+					$this->identifier = $identifier = $path_parts[$n + 1];
 					break;
 				}
 			}
-
 		} else if (UPDATE_TYPE === 'plugin') {
 
 			// Gain access the get_plugins() function.
-			include_once(ABSPATH.'/wp-admin/includes/plugin.php');
+			include_once(ABSPATH . '/wp-admin/includes/plugin.php');
 
 			// Get path to plugin dir and this file; make consistent the slashes.
 			$dir = explode('/', str_replace('\\', '/', WP_PLUGIN_DIR));
@@ -515,7 +516,7 @@ class UpdateClient {
 
 			// Find the plugin id that matches the directory name.
 			foreach (array_keys(get_plugins()) as $id) {
-				if (strpos($id, $dir_name.'/') === 0) {
+				if (strpos($id, $dir_name . '/') === 0) {
 					$this->identifier = $identifier = $id;
 					break;
 				}
@@ -524,7 +525,6 @@ class UpdateClient {
 
 		// Return the identifier.
 		return $identifier;
-
 	}
 
 	/**
@@ -543,7 +543,8 @@ class UpdateClient {
 	 *
 	 * @return string Plugin identifier; ie, plugin-folder/plugin-file.php
 	 */
-	private function get_plugin_identifier() {
+	private function get_plugin_identifier()
+	{
 		return $this->get_identifier();
 	}
 
@@ -562,7 +563,8 @@ class UpdateClient {
 	 * @param string $component Will be 'plugin' or 'theme'.
 	 * @return array|array|mixed Data for the plugin or theme.
 	 */
-	private function get_component_data($action, $component='') {
+	private function get_component_data($action, $component = '')
+	{
 
 		// If component data exists, no need to requery; return that data.
 		if (!empty($this->component_data)) {
@@ -573,23 +575,20 @@ class UpdateClient {
 		global $cp_version;
 
 		// Initialize the data to be posted.
-		$body = apply_filters('codepotent_update_manager_filter_'.$this->config['id'].'_client_request', $this->config['post']);
-		
+		$body = apply_filters('codepotent_update_manager_filter_' . $this->config['id'] . '_client_request', $this->config['post']);
+
 		if ($action === 'plugin_information') {
 
 			// If querying a single plugin, assign it to the post body.
 			$body[$this->config['type']] = $component;
-
 		} else if ($action === 'theme_information') {
 
 			// If querying a single theme, assign it to the post body.
 			$body[$this->config['type']] = $component;
-
 		} else if ($action === 'query_plugins') {
 
 			// If querying for all plugins, assign them to the post body.
 			$body['plugins'] = get_plugins();
-
 		} else if ($action === 'query_themes') {
 
 			// If querying for all themes, preprocess and assign to post body.
@@ -612,11 +611,9 @@ class UpdateClient {
 				];
 			}
 			$body['themes'] = $themes;
-
 		} else {
 
 			return [];
-
 		}
 
 		// Site URL; allows for particular URLs to test updates before pushing.
@@ -631,7 +628,7 @@ class UpdateClient {
 
 		// Assemble args to post back to the Update Manager plugin.
 		$options = [
-			'user-agent' => 'ClassicPress/'.$cp_version.'; '.get_bloginfo('url'),
+			'user-agent' => 'ClassicPress/' . $cp_version . '; ' . get_bloginfo('url'),
 			'body'       => $body,
 			'timeout'    => apply_filters('codepotent_update_manager_timeout', 5),
 		];
@@ -679,7 +676,6 @@ class UpdateClient {
 
 		// Return the reponse body.
 		return $this->component_data;
-
 	}
 
 	/**
@@ -695,7 +691,8 @@ class UpdateClient {
 	 * @param string $plugin
 	 * @return array|array|mixed
 	 */
-	private function get_plugin_data($action, $plugin='') {
+	private function get_plugin_data($action, $plugin = '')
+	{
 		return $this->get_component_data($action, $plugin);
 	}
 
@@ -713,7 +710,8 @@ class UpdateClient {
 	 * @param string $plugin The name (ie, folder-name) of a plugin.
 	 * @return array Array of image URLs or empty array.
 	 */
-	public function get_plugin_images($type, $plugin) {
+	public function get_plugin_images($type, $plugin)
+	{
 
 		// Initialize.
 		$images = [];
@@ -729,16 +727,16 @@ class UpdateClient {
 		}
 
 		// Set path and URL to this plugin's own images directory.
-		$image_path = untrailingslashit(WP_PLUGIN_DIR).'/'.$plugin.'/images';
-		$image_url  = untrailingslashit(WP_PLUGIN_URL).'/'.$plugin.'/images';
+		$image_path = untrailingslashit(WP_PLUGIN_DIR) . '/' . $plugin . '/images';
+		$image_url  = untrailingslashit(WP_PLUGIN_URL) . '/' . $plugin . '/images';
 
 		// Allow directory location to be filtered. DEPRECATED FILTERS.
 		$image_path = apply_filters('codepotent_update_manager_image_path', $image_path);
 		$image_url  = apply_filters('codepotent_update_manager_image_url', $image_url);
 
 		// Allow directory location to be filtered. NEW FILTERS.
-		$image_path = apply_filters('codepotent_update_manager_'.$this->config['id'].'_image_path', $image_path);
-		$image_url  = apply_filters('codepotent_update_manager_'.$this->config['id'].'_image_url', $image_url);
+		$image_path = apply_filters('codepotent_update_manager_' . $this->config['id'] . '_image_path', $image_path);
+		$image_url  = apply_filters('codepotent_update_manager_' . $this->config['id'] . '_image_url', $image_url);
 
 		// Banner and icon images are keyed differently; it's a core thing.
 		$image_qualities = [
@@ -748,16 +746,16 @@ class UpdateClient {
 
 		// Array of dimensions for bannes and icons.
 		$image_dimensions = [
-			'icon'   => ['default'=>'128',     '1x'=>'128',      '2x'=>'256'],
-			'banner' => ['default'=>'772x250', 'low'=>'772x250', 'high'=>'1544x500'],
+			'icon'   => ['default' => '128',     '1x' => '128',      '2x' => '256'],
+			'banner' => ['default' => '772x250', 'low' => '772x250', 'high' => '1544x500'],
 		];
 
 		// Handle icon and banner requests.
 		if ($type === 'icon' || $type === 'banner') {
 			// For SVG banners/icons; one tiny loop handles both.
-			if (file_exists($image_path.'/'.$type.'.svg')) {
+			if (file_exists($image_path . '/' . $type . '.svg')) {
 				foreach ($image_qualities[$type] as $key) {
-					$images[$key] = $image_url.'/'.$type.'.svg';
+					$images[$key] = $image_url . '/' . $type . '.svg';
 				}
 			}
 			// Ok, no svg. How about png or jpg?
@@ -769,23 +767,21 @@ class UpdateClient {
 					$last_key   = array_pop($all_keys);
 					$middle_key = array_pop($all_keys);
 					// Normal size images found? Add them.
-					if (file_exists($image_path.'/'.$type.'-'.$image_dimensions[$type][$middle_key].'.'.$ext)) {
+					if (file_exists($image_path . '/' . $type . '-' . $image_dimensions[$type][$middle_key] . '.' . $ext)) {
 						foreach ($image_qualities[$type] as $key) {
-							$images[$key] = $image_url.'/'.$type.'-'.$image_dimensions[$type][$middle_key].'.'.$ext;
+							$images[$key] = $image_url . '/' . $type . '-' . $image_dimensions[$type][$middle_key] . '.' . $ext;
 						}
 					}
 					// Retina image found? Add it.
-					if (file_exists($image_path.'/'.$type.'-'.$image_dimensions[$type][$last_key].'.'.$ext)) {
-						$images[$last_key] = $image_url.'/'.$type.'-'.$image_dimensions[$type][$last_key].'.'.$ext;
+					if (file_exists($image_path . '/' . $type . '-' . $image_dimensions[$type][$last_key] . '.' . $ext)) {
+						$images[$last_key] = $image_url . '/' . $type . '-' . $image_dimensions[$type][$last_key] . '.' . $ext;
 					}
-
 				} // foreach
 
 			} // inner if/else
 
 			// Return icon or banner URLs.
 			return $images;
-
 		}
 
 		// Oh, banners? Note these are from current version, not new version.
@@ -800,23 +796,20 @@ class UpdateClient {
 				// Capture only the screenshot URLs.
 				foreach ($dir_contents as $name) {
 					if (strpos(strtolower($name), 'screenshot') === 0) {
-						$start = strpos($name, '-')+1;
-						$for = strpos($name, '.')-$start;
+						$start = strpos($name, '-') + 1;
+						$for = strpos($name, '.') - $start;
 						$screenshot_number = substr($name, $start, $for);
-						$images[$screenshot_number] = $image_url.'/'.$name;
+						$images[$screenshot_number] = $image_url . '/' . $name;
 					}
 				}
 
 				// Proper the sort.
 				ksort($images);
-
 			}
-
 		}
 
 		// Return any screenshot URLs.
 		return $images;
-
 	}
 
 	/**
@@ -828,7 +821,8 @@ class UpdateClient {
 	 *
 	 * @return string
 	 */
-	public function get_latest_version_number() {
+	public function get_latest_version_number()
+	{
 
 		// Get current ClassicPress version, if stored.
 		$version = get_transient('codepotent_update_manager_cp_version');
@@ -839,7 +833,7 @@ class UpdateClient {
 		}
 
 		// Make a request to the ClassicPress versions API.
-		$response = wp_remote_get('https://api-v1.classicpress.net/upgrade/index.php', ['timeout'=>3]);
+		$response = wp_remote_get('https://api-v1.classicpress.net/upgrade/index.php', ['timeout' => 3]);
 
 		// Problems? Bail.
 		if (is_wp_error($response) || empty($response)) {
@@ -850,7 +844,7 @@ class UpdateClient {
 		$versions = json_decode(wp_remote_retrieve_body($response));
 
 		// Reverse iterate to find the latest version.
-		for ($i=count($versions)-1; $i>0; $i--) {
+		for ($i = count($versions) - 1; $i > 0; $i--) {
 			if (!strpos($versions[$i], 'nightly')) {
 				if (!strpos($versions[$i], 'alpha')) {
 					if (!strpos($versions[$i], 'beta')) {
@@ -874,9 +868,7 @@ class UpdateClient {
 
 		// Return the version string.
 		return $version;
-
 	}
-
 }
 
 // Run it!
